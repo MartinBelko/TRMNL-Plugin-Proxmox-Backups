@@ -1,0 +1,55 @@
+<table class="table table--small">
+  <tr>
+    <th class="title">Host</th>
+    <th class="title">Severity</th>
+    <th class="title">Timestamp</th>
+    <th class="title">Result</th>
+  </tr>
+
+  {% assign group_size = 3 %}
+  {% assign current_host = "" %}
+  {% assign current_severity = "" %}
+  {% assign success_icon_url = "https://img.icons8.com/?size=100&id=OX5Hj8Y3CiDf&format=png&color=000000" %}
+  {% assign failed_icon_url = "https://img.icons8.com/?size=100&id=41591&format=png&color=000000" %}
+
+  {% for backup in backups %}
+  {% assign index = forloop.index | modulo: group_size %}
+
+  {% if index == 1 %}
+  {% assign current_host = backup %}
+
+  {% elsif index == 2 %}
+  {% assign current_severity = backup %}
+
+  {% else %}
+  {% assign current_timestamp = backup %}
+
+  {% assign result = "" %}
+  {% if current_severity | downcase == "info" %}
+  {% assign result = "Succeeded" %}
+  {% elsif current_severity | downcase == "error" %}
+  {% assign result = "Failed" %}
+  {% else %}
+  {% assign result = "N/A" %}
+  {% endif %}
+
+  <tr>
+    <td><div class="label label--small">{{ current_host | default: "N/A" }}</div></td>
+    <td><div class="label label--small">{{ current_severity | upcase }}</div></td>
+    <td><div class="label label--small">{{ current_timestamp | date: "%H:%M %d.%m.%Y" }}</div></td>
+    <td><div class="label label--small">
+      {% if result == "Succeeded" %}
+        <img src="{{ success_icon_url }}" style="height: 40px; width: 40px; vertical-align: middle;">
+      {% else %}
+        <img src="{{ failed_icon_url }}" style="height: 40px; width: 40px; vertical-align: middle;">
+      {% endif %}
+    </div></td>
+  </tr>
+  {% assign current_host = "" %}
+  {% assign current_severity = "" %}
+
+  {% endif %}
+
+  {% endfor %}
+
+</table>
