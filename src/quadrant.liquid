@@ -1,0 +1,109 @@
+{% assign group_size = 3 %}
+{% assign success_count = 0 %}
+{% assign failed_count = 0 %}
+{% assign grouped_backups = "" | split: "" %}
+{% assign temp_group = "" | split: "" %}
+
+{% for backup in backups %}
+  {% assign index = forloop.index | modulo: group_size %}
+  {% assign temp_group = temp_group | push: backup %}
+
+  {% if index == 0 %}
+    {% assign grouped_backups = grouped_backups | push: temp_group %}
+    {% assign temp_group = "" | split: "" %}
+  {% endif %}
+
+  {% if index == 2 %}
+    {% assign severity = backup %}
+    {% if severity | downcase == "info" %}
+      {% assign success_count = success_count | plus: 1 %}
+    {% elsif severity | downcase == "error" %}
+      {% assign failed_count = failed_count | plus: 1 %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% assign total_backups = backups | size | divided_by: group_size %}
+{% assign max_display = 3 %}
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<div style="padding: 10px;">
+  <div style="display: flex; width: 100%; margin-bottom: 15px;">
+    <div style="flex: 1; text-align: center;">
+      <div class="item item--emphasis-2">
+        <div class="meta"></div>
+        <span class="value value--xsmall">{{ success_count }} Succeeded</span>
+      </div>
+    </div>
+    <div style="flex: 1; text-align: center;">
+      <div class="item item--emphasis-2">
+        <div class="meta"></div>
+        <span class="value value--xsmall">{{ failed_count }} Failed</span>
+      </div>
+    </div>
+  </div>
+
+  <table class="table table--small" data-table-limit="true">
+    <thead>
+      <tr>
+        <th class="title">Host</th>
+        <th class="title">Time</th>
+        <th class="title">Date</th>
+        <th class="title">Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% assign row_count = 0 %}
+      {% for backup in backups reversed %}
+        {% assign index = forloop.index | modulo: group_size %}
+
+        {% if index == 1 %}
+          {% assign current_timestamp_unix = backup %}
+          {% assign oslo_offset = 7200 %}
+          {% assign current_timestamp = current_timestamp_unix | plus: oslo_offset %}
+
+        {% elsif index == 2 %}
+          {% assign current_severity = backup %}
+
+        {% else %}
+          {% assign current_host = backup %}
+
+          {% assign result = "" %}
+          {% if current_severity | downcase == "info" %}
+            {% assign result = "Succeeded" %}
+          {% elsif current_severity | downcase == "error" %}
+            {% assign result = "Failed" %}
+          {% else %}
+            {% assign result = "N/A" %}
+          {% endif %}
+
+          {% if row_count < max_display %}
+            <tr>
+              <td><div class="label">{{ current_host | default: "N/A" }}</div></td>
+              <td><div class="label">{{ current_timestamp | date: "%H:%M" }}</div></td>
+              <td><div class="label">{{ current_timestamp | date: "%d.%m.%Y" }}</div></td>
+              <td><div class="label">
+                {% if result == "Succeeded" %}
+                  <span class="material-icons" style="font-size: 35px; vertical-align: middle;">cloud_done</span>
+                {% else %}
+                  <span class="material-icons" style="font-size: 35px; vertical-align: middle;">cloud_alert</span>
+                {% endif %}
+              </div></td>
+            </tr>
+            {% assign row_count = row_count | plus: 1 %}
+          {% endif %}
+        {% endif %}
+
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% assign remaining = total_backups | minus: max_display %}
+  {% if remaining > 0 %}
+  <div style="text-align: center; padding: 5px;">
+    <span class="description">+ {{ remaining }} more backups</span>
+  </div>
+  {% endif %}
+
+</div>
