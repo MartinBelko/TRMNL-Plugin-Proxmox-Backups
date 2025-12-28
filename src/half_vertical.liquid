@@ -24,7 +24,7 @@
 {% endfor %}
 
 {% assign total_backups = backups | size | divided_by: group_size %}
-{% assign max_display = 7 %}
+{% assign max_display = 10 %}
 
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -33,13 +33,15 @@
     <div style="flex: 1; text-align: center;">
       <div class="item item--emphasis-2">
         <div class="meta"></div>
-        <span class="value value--xsmall">{{ success_count }} Succeeded</span>
+        <span class="value value--xxsmall" style="align-content: center;">{{ success_count }} Succeeded</span>
+        <span class="material-icons" style="vertical-align: middle;">cloud_done</span>
       </div>
     </div>
     <div style="flex: 1; text-align: center;">
       <div class="item item--emphasis-2">
         <div class="meta"></div>
-        <span class="value value--xsmall">{{ failed_count }} Failed</span>
+        <span class="value value--xxsmall" style="align-content: center;"">{{ failed_count }} Failed</span>
+        <span class="material-icons" style="vertical-align: middle;">cloud_done</span>
       </div>
     </div>
   </div>
@@ -47,10 +49,10 @@
   <table class="table table--small" data-table-limit="true">
     <thead>
       <tr>
-        <th class="title">Host</th>
-        <th class="title">Time</th>
-        <th class="title">Date</th>
-        <th class="title">Result</th>
+        <th class="title title--small">Host</th>
+        <th class="title title--small">Time</th>
+        <th class="title title--small">Date</th>
+        <th class="title title--small">Result</th>
       </tr>
     </thead>
     <tbody>
@@ -80,14 +82,14 @@
 
           {% if row_count < max_display %}
             <tr>
-              <td><div class="label">{{ current_host | default: "N/A" }}</div></td>
-              <td><div class="label">{{ current_timestamp | date: "%H:%M" }}</div></td>
-              <td><div class="label">{{ current_timestamp | date: "%d.%m.%Y" }}</div></td>
-              <td><div class="label">
+              <td><div class="label label--small">{{ current_host | default: "N/A" }}</div></td>
+              <td><div class="label label--small">{{ current_timestamp | date: "%H:%M" }}</div></td>
+              <td><div class="label label--small">{{ current_timestamp | date: "%d.%m.%Y" }}</div></td>
+              <td><div class="label label--small">
                 {% if result == "Succeeded" %}
-                  <span class="material-icons" style="font-size: 35px; vertical-align: middle;">cloud_done</span>
+                  <span class="material-icons" style="font-size: 25px; vertical-align: middle;">cloud_done</span>
                 {% else %}
-                  <span class="material-icons" style="font-size: 35px; vertical-align: middle;">cloud_alert</span>
+                  <span class="material-icons" style="font-size: 25px; vertical-align: middle;">cloud_alert</span>
                 {% endif %}
               </div></td>
             </tr>
